@@ -11,7 +11,7 @@ from grpc_accesslog import LogContext
 
 
 @pytest.fixture
-def servicer_context():
+def servicer_context() -> Mock:
     """Mock gRPC servicer context."""
     context = Mock(
         grpc.ServicerContext,
@@ -26,7 +26,7 @@ def servicer_context():
 
 
 @pytest.fixture
-def log_context(servicer_context):
+def log_context(servicer_context: Mock) -> LogContext:
     """Mock LogContext."""
     context = LogContext(
         servicer_context,
@@ -47,7 +47,7 @@ def log_context(servicer_context):
         pytest.param("%Y%m%d%H%M%S", "20210403000000"),
     ],
 )
-def test_time_received(format, expected, log_context):
+def test_time_received(format: str, expected: str, log_context: LogContext) -> None:
     """Test parsing received time."""
     result = handlers.time_received(format)(log_context)
 
@@ -61,36 +61,36 @@ def test_time_received(format, expected, log_context):
         pytest.param("%Y%m%d%H%M%S", "20210403000100"),
     ],
 )
-def test_time_complete(format, expected, log_context):
+def test_time_complete(format: str, expected: str, log_context: LogContext) -> None:
     """Test parsing received time."""
     result = handlers.time_complete(format)(log_context)
 
     assert result == expected
 
 
-def test_rtt_ms(log_context):
+def test_rtt_ms(log_context: LogContext) -> None:
     """Test parsing received time."""
     result = handlers.rtt_ms(log_context)
 
     assert result == "60000"
 
 
-def test_request(log_context):
+def test_request(log_context: LogContext) -> None:
     """Test returning RPC name."""
     assert handlers.request(log_context) == log_context.method_name
 
 
-def test_status(log_context):
+def test_status(log_context: LogContext) -> None:
     """Test returning gRPC status code."""
     assert handlers.status(log_context) == grpc.StatusCode.NOT_FOUND.name
 
 
-def test_peer(log_context):
+def test_peer(log_context: LogContext) -> None:
     """Test returning peer IP address."""
     assert handlers.peer(log_context) == "192.168.0.1"
 
 
-def test_response_size(log_context):
+def test_response_size(log_context: LogContext) -> None:
     """Test returning gRPC response byte size."""
     assert handlers.response_size(log_context) == "10"
 
@@ -102,8 +102,9 @@ def test_response_size(log_context):
         pytest.param(Mock(), "-"),
     ],
 )
-def test_user_agent(metadata, expected, log_context):
+def test_user_agent(metadata: Mock, expected: str, log_context: LogContext) -> None:
     """Test parsing and returning gRPC user agent from metadata."""
-    log_context.server_context.invocation_metadata.return_value = (metadata,)
+    mock_metadata = Mock(return_value=(metadata,))
 
+    log_context.server_context.invocation_metadata = mock_metadata  # type: ignore
     assert handlers.user_agent(log_context) == expected

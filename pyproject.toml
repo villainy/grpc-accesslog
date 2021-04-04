@@ -21,6 +21,7 @@ Changelog = "https://github.com/villainy/grpc-accesslog/releases"
 [tool.poetry.dependencies]
 python = "^3.6.1"
 grpc-interceptor = "^0.13.0"
+grpc-stubs = "^1.24.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.2"
@@ -43,17 +44,13 @@ darglint = "^1.7.0"
 reorder-python-imports = "^2.4.0"
 pre-commit-hooks = "^3.4.0"
 sphinx-rtd-theme = "^0.5.1"
-sphinx-click = "^2.6.0"
 Pygments = "^2.8.1"
-
-[tool.poetry.scripts]
-grpc-accesslog = "grpc_accesslog.__main__:main"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 
 [tool.coverage.run]
-branch = true
+branch = false
 source = ["grpc_accesslog"]
 
 [tool.coverage.report]

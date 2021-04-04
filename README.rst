@@ -36,13 +36,15 @@ gRPC Access Log
 Features
 --------
 
-* TODO
+* Write stdout logs for every RPC request
+* Log messages built with customizable callback handlers
 
 
 Requirements
 ------------
 
-* TODO
+* Python 3.6+
+* grpc-interceptors 0.13+
 
 
 Installation
@@ -58,7 +60,7 @@ You can install *gRPC Access Log* via pip_ from PyPI_:
 Usage
 -----
 
-Please see the `Command-line Reference <Usage_>`_ for details.
+Please see the `Reference <Usage_>`_ for details.
 
 
 Contributing
