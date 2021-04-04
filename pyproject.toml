@@ -20,7 +20,7 @@ Changelog = "https://github.com/villainy/grpc-accesslog/releases"
 
 [tool.poetry.dependencies]
 python = "^3.6.1"
-click = "^7.0"
+grpc-interceptor = "^0.13.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.2"
