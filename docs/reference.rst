@@ -6,8 +6,8 @@ Reference
     :backlinks: none
 
 
-grpc_accesslog.__main__
+grpc_accesslog
 -----------------------
 
-.. automodule:: grpc_accesslog.__main__
+.. automodule:: grpc_accesslog
    :members:

@@ -46,14 +46,11 @@ pre-commit-hooks = "^3.4.0"
 sphinx-rtd-theme = "^0.5.1"
 Pygments = "^2.8.1"
 
-[tool.poetry.scripts]
-grpc-accesslog = "grpc_accesslog.__main__:main"
-
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 
 [tool.coverage.run]
-branch = true
+branch = false
 source = ["grpc_accesslog"]
 
 [tool.coverage.report]
