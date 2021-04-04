@@ -329,6 +329,19 @@ grpcio = ">=1.8.0,<2.0.0"
 testing = ["protobuf (>=3.6.0)"]
 
 [[package]]
+name = "grpc-stubs"
+version = "1.24.5"
+description = "Mypy stubs for gRPC"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+grpcio = "*"
+mypy = ">=0.730"
+typing-extensions = "*"
+
+[[package]]
 name = "grpcio"
 version = "1.36.1"
 description = "HTTP/2-based RPC framework"
@@ -454,7 +467,7 @@ python-versions = "*"
 name = "mypy"
 version = "0.812"
 description = "Optional static typing for Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 
@@ -470,7 +483,7 @@ dmypy = ["psutil (>=4.0)"]
 name = "mypy-extensions"
 version = "0.4.3"
 description = "Experimental type system extensions for programs checked with the mypy typechecker."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -925,7 +938,7 @@ python-versions = ">= 3.5"
 name = "typed-ast"
 version = "1.4.2"
 description = "a fork of Python 2 and 3 ast modules with type comment support"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -945,7 +958,7 @@ test = ["pytest", "typing-extensions", "mypy"]
 name = "typing-extensions"
 version = "3.7.4.3"
 description = "Backported and Experimental Type Hints for Python 3.5+"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -1017,7 +1030,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "4d1b6b01d70b7bc2c0ac65d010b0973a626ae65f3618c69a1af8dfda45b1dffa"
+content-hash = "2c10b679bf13ec8774476b069f6093c0e25b56f84e54ae9c747c9deb0ad18e1b"
 
 [metadata.files]
 alabaster = [
@@ -1186,6 +1199,10 @@ gitpython = [
 grpc-interceptor = [
     {file = "grpc-interceptor-0.13.0.tar.gz", hash = "sha256:23ec906bd38bd09a6c9ca0ed44432ee8903d19aa9c4dce738c46469cb01f4a78"},
     {file = "grpc_interceptor-0.13.0-py3-none-any.whl", hash = "sha256:0f0f2844798c5c81d4fa54fd00356bc3c44d0b1604fa90763839fae960e21f6f"},
+]
+grpc-stubs = [
+    {file = "grpc-stubs-1.24.5.tar.gz", hash = "sha256:d875d5827e0a1ee6003aa5848243ea5df650f89cef8cf8abd917a27493e970e7"},
+    {file = "grpc_stubs-1.24.5-py3-none-any.whl", hash = "sha256:2ce3a4ce40a7bb755620f012bf7301a63fa42cfa7d2fb715f69854d9123ceaa9"},
 ]
 grpcio = [
     {file = "grpcio-1.36.1-cp27-cp27m-macosx_10_10_x86_64.whl", hash = "sha256:e3a83c5db16f95daac1d96cf3c9018d765579b5a29bb336758d793028e729921"},

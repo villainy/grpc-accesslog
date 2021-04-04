@@ -80,10 +80,10 @@ def status(context: LogContext) -> str:
     code = grpc.StatusCode.OK.name
     # TODO gRPC status code is not exposed publicly anywhere in the server
     # interceptor's context
-    if context.server_context._state.code:
-        code = context.server_context._state.code.name
+    if context.server_context._state.code:  # type: ignore
+        code = context.server_context._state.code.name  # type: ignore
 
-    return code
+    return str(code)
 
 
 def peer(context: LogContext) -> str:
@@ -132,6 +132,6 @@ def user_agent(context: LogContext) -> str:
     """
     for metadata in context.server_context.invocation_metadata():
         if getattr(metadata, "key", "").lower() == "user-agent":
-            return getattr(metadata, "value", "-")
+            return str(getattr(metadata, "value", "-"))
 
     return "-"

@@ -4,7 +4,8 @@ from datetime import datetime
 from datetime import timezone
 from typing import Any
 from typing import Callable
-from typing import Tuple
+from typing import Iterable
+from typing import Optional
 
 import grpc
 from grpc_interceptor import ServerInterceptor
@@ -20,7 +21,7 @@ class AccessLogInterceptor(ServerInterceptor):
         self,
         level: int = logging.INFO,
         name: str = __name__,
-        handlers: Tuple[Callable[[LogContext], str]] = None,
+        handlers: Optional[Iterable[Callable[[LogContext], str]]] = None,
         separator: str = " ",
         propagate: bool = False,
     ) -> None:
@@ -33,7 +34,7 @@ class AccessLogInterceptor(ServerInterceptor):
         Args:
             level (int): Log level. Defaults to logging.INFO.
             name (str): Logger name. Defaults to __name__.
-            handlers (Tuple[Callable[[LogContext], str]]): LogContext
+            handlers (Iterable[Callable[[LogContext], str]]): LogContext
                 handlers collected in order. Defaults to None.
             separator (str): Log message separator. Defaults to " ".
             propagate (bool): Enable propagation to parent loggers. Defaults to False.
@@ -61,7 +62,7 @@ class AccessLogInterceptor(ServerInterceptor):
 
     def intercept(
         self,
-        method: Callable,
+        method: Callable[[Any, grpc.ServicerContext], Any],
         request: Any,
         context: grpc.ServicerContext,
         method_name: str,
@@ -89,7 +90,10 @@ class AccessLogInterceptor(ServerInterceptor):
             start,
             end,
         )
-        log_args = [handler(log_context) for handler in self._handlers]
+
+        log_args = []
+        if self._handlers is not None:
+            log_args = [handler(log_context) for handler in self._handlers]
 
         self._logger.log(
             self._level,
