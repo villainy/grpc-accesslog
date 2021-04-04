@@ -1,1 +1,1 @@
-"""Test suite for the grpc_accesslog package."""
+"""gRPC access log interceptor tests."""
