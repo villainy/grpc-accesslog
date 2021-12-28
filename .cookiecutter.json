@@ -1,6 +1,7 @@
 {
   "_template": "gh:cjolowicz/cookiecutter-hypermodern-python",
   "author": "Michael Morgan",
+  "development_status": "Development Status :: 1 - Planning",
   "email": "git@morgan83.com",
   "friendly_name": "gRPC Access Log",
   "github_user": "villainy",
