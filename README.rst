@@ -1,7 +1,7 @@
 gRPC Access Log
 ===============
 
-|PyPI| |Python Version| |License|
+|PyPI| |Status| |Python Version| |License|
 
 |Read the Docs| |Tests| |Codecov|
 
@@ -10,6 +10,9 @@ gRPC Access Log
 .. |PyPI| image:: https://img.shields.io/pypi/v/grpc-accesslog.svg
    :target: https://pypi.org/project/grpc-accesslog/
    :alt: PyPI
+.. |Status| image:: https://img.shields.io/pypi/status/grpc-accesslog.svg
+   :target: https://pypi.org/project/grpc-accesslog/
+   :alt: Status
 .. |Python Version| image:: https://img.shields.io/pypi/pyversions/grpc-accesslog
    :target: https://pypi.org/project/grpc-accesslog
    :alt: Python Version
@@ -23,7 +26,7 @@ gRPC Access Log
    :target: https://github.com/villainy/grpc-accesslog/actions?workflow=Tests
    :alt: Tests
 .. |Codecov| image:: https://codecov.io/gh/villainy/grpc-accesslog/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/villainy/grpc-accesslog
+   :target: https://app.codecov.io/gh/villainy/grpc-accesslog
    :alt: Codecov
 .. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
    :target: https://github.com/pre-commit/pre-commit
@@ -43,7 +46,7 @@ Features
 Requirements
 ------------
 
-* Python 3.6+
+* Python 3.7+
 * grpc-interceptors 0.13+
 
 
@@ -97,5 +100,5 @@ This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter
 .. _file an issue: https://github.com/villainy/grpc-accesslog/issues
 .. _pip: https://pip.pypa.io/
 .. github-only
-.. _Contributor Guide: CONTRIBUTING.rst
+.. _Contributor Guide: https://grpc-accesslog.readthedocs.io/en/latest/contributing.html
 .. _Usage: https://grpc-accesslog.readthedocs.io/en/latest/usage.html
