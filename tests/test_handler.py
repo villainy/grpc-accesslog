@@ -6,8 +6,8 @@ from unittest.mock import Mock
 import grpc
 import pytest
 
-from grpc_accesslog import handlers
 from grpc_accesslog import LogContext
+from grpc_accesslog import handlers
 
 
 @pytest.fixture
