@@ -46,7 +46,7 @@ Features
 Requirements
 ------------
 
-* Python 3.6+
+* Python 3.7+
 * grpc-interceptors 0.13+
 
 

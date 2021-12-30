@@ -1,12 +1,12 @@
 {
   "_template": "gh:cjolowicz/cookiecutter-hypermodern-python",
   "author": "Michael Morgan",
-  "development_status": "Development Status :: 1 - Planning",
+  "development_status": "Development Status :: 4 - Beta",
   "email": "git@morgan83.com",
   "friendly_name": "gRPC Access Log",
   "github_user": "villainy",
   "license": "MIT",
   "package_name": "grpc_accesslog",
   "project_name": "grpc-accesslog",
-  "version": "0.0.0"
+  "version": "0.1.0"
 }
