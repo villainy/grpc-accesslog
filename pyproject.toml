@@ -53,7 +53,7 @@ source = ["src", "*/site-packages"]
 tests = ["tests", "*/tests"]
 
 [tool.coverage.run]
-branch = true
+branch = false
 source = ["grpc_accesslog", "tests"]
 
 [tool.coverage.report]
