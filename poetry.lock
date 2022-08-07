@@ -327,14 +327,14 @@ typing-extensions = {version = ">=3.7.4.3", markers = "python_version < \"3.8\""
 
 [[package]]
 name = "grpc-interceptor"
-version = "0.14.2"
+version = "0.15.0"
 description = "Simplifies gRPC interceptors"
 category = "main"
 optional = false
-python-versions = ">=3.6,<4.0"
+python-versions = ">=3.6.1,<4.0.0"
 
 [package.dependencies]
-grpcio = ">=1.8.1,<2.0.0"
+grpcio = ">=1.32.0,<2.0.0"
 
 [package.extras]
 testing = ["protobuf (>=3.6.0)"]
@@ -1265,8 +1265,8 @@ gitpython = [
     {file = "GitPython-3.1.27.tar.gz", hash = "sha256:1c885ce809e8ba2d88a29befeb385fcea06338d3640712b59ca623c220bb5704"},
 ]
 grpc-interceptor = [
-    {file = "grpc-interceptor-0.14.2.tar.gz", hash = "sha256:6690e35da97eba0333b39e77b7cc41868ab0f4f50593daab8c59dd5fec0b543c"},
-    {file = "grpc_interceptor-0.14.2-py3-none-any.whl", hash = "sha256:d306c156d3f3783ca103c6e2d1e75a84971eecd67658e72961dda3afba09fb8f"},
+    {file = "grpc-interceptor-0.15.0.tar.gz", hash = "sha256:5c1aa9680b1d7e12259960c38057b121826860b05ebbc1001c74343b7ad1455e"},
+    {file = "grpc_interceptor-0.15.0-py3-none-any.whl", hash = "sha256:63e390162e64df96c39c40508eb697def76a7cafac32a7eaf9272093eec1109e"},
 ]
 grpc-stubs = [
     {file = "grpc-stubs-1.24.11.tar.gz", hash = "sha256:b02b0445b264eb3d310a2c14816c440f98f76d4ba2a5746adf148d57cca8b3a5"},
