@@ -80,7 +80,7 @@ class AccessLogInterceptor(ServerInterceptor):
         """
         start = datetime.now(timezone.utc)
         response = method(request, context)
-        end = datetime.now()
+        end = datetime.now(timezone.utc)
 
         log_context = LogContext(
             context,
