@@ -82,7 +82,7 @@ class AccessLogInterceptor(ServerInterceptor):
         start = datetime.now(timezone.utc)
         response = method(request, context)
 
-        def _wrap_responses():
+        def _wrap_responses() -> Iterator[Any]:
             yield from response
 
             end = datetime.now(timezone.utc)
@@ -120,7 +120,7 @@ class AccessLogInterceptor(ServerInterceptor):
         response: Any,
         start: datetime,
         end: datetime,
-    ):
+    ) -> None:
         log_context = LogContext(
             context,
             method_name,
@@ -129,6 +129,9 @@ class AccessLogInterceptor(ServerInterceptor):
             start,
             end,
         )
+
+        if self._handlers is None:
+            return
 
         log_args = [handler(log_context) for handler in self._handlers]
 

@@ -1,6 +1,7 @@
 """Server interceptor tests."""
 import logging
 import re
+from typing import Iterator
 from unittest.mock import Mock
 
 from pytest import LogCaptureFixture
@@ -40,7 +41,7 @@ def test_intercept_unary_stream(caplog: LogCaptureFixture) -> None:
     """Test server-streaming interceptor."""
     caplog.set_level(logging.INFO, logger="root")
 
-    def _handler(context: LogContext):
+    def _handler(context: LogContext) -> str:
         return context.method_name
 
     interceptor = AccessLogInterceptor(
@@ -53,7 +54,7 @@ def test_intercept_unary_stream(caplog: LogCaptureFixture) -> None:
 
     method = Mock(name="method")
 
-    def _response():
+    def _response() -> Iterator[int]:
         logging.info("test1")
         yield 0
         logging.info("test2")
