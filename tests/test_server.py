@@ -39,7 +39,7 @@ def test_intercept(caplog: LogCaptureFixture) -> None:
 
 def test_intercept_unary_stream(caplog: LogCaptureFixture) -> None:
     """Test server-streaming interceptor."""
-    caplog.set_level(logging.INFO, logger="root")
+    caplog.set_level(logging.INFO)
 
     def _handler(context: LogContext) -> str:
         return context.method_name
