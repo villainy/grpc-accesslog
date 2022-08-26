@@ -37,6 +37,23 @@ def test_intercept(caplog: LogCaptureFixture) -> None:
     assert "this that" in caplog.text
 
 
+def test_intercept_no_handlers(caplog: LogCaptureFixture) -> None:
+    """Test interceptor behavior with no handlers does nothing."""
+    caplog.set_level(logging.INFO, logger="root")
+
+    interceptor = AccessLogInterceptor(
+        name="root",
+        handlers=None,
+        propagate=True,
+    )
+
+    interceptor._handlers = None
+
+    interceptor.intercept(Mock(), Mock(), Mock(), "/abc/Test")
+
+    assert not caplog.text
+
+
 def test_intercept_unary_stream(caplog: LogCaptureFixture) -> None:
     """Test server-streaming interceptor."""
     caplog.set_level(logging.INFO)
