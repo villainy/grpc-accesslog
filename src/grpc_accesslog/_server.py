@@ -5,6 +5,7 @@ from datetime import timezone
 from typing import Any
 from typing import Callable
 from typing import Iterable
+from typing import Iterator
 from typing import Optional
 
 import grpc
@@ -51,14 +52,14 @@ class AccessLogInterceptor(ServerInterceptor):
         self._separator = separator
 
         if handlers is None:
-            self._handlers = (
+            self._handlers = [
                 _handlers.peer,
                 _handlers.time_received(),
                 _handlers.request,
                 _handlers.status,
                 _handlers.response_size,
                 _handlers.user_agent,
-            )
+            ]
 
     def intercept(
         self,
@@ -80,8 +81,46 @@ class AccessLogInterceptor(ServerInterceptor):
         """
         start = datetime.now(timezone.utc)
         response = method(request, context)
+
+        def _wrap_responses() -> Iterator[Any]:
+            yield from response
+
+            end = datetime.now(timezone.utc)
+
+            self._write_log(
+                context,
+                method_name,
+                request,
+                response,
+                start,
+                end,
+            )
+
+        if isinstance(response, Iterator):
+            return _wrap_responses()
+
         end = datetime.now(timezone.utc)
 
+        self._write_log(
+            context,
+            method_name,
+            request,
+            response,
+            start,
+            end,
+        )
+
+        return response
+
+    def _write_log(
+        self,
+        context: grpc.ServicerContext,
+        method_name: str,
+        request: Any,
+        response: Any,
+        start: datetime,
+        end: datetime,
+    ) -> None:
         log_context = LogContext(
             context,
             method_name,
@@ -91,14 +130,13 @@ class AccessLogInterceptor(ServerInterceptor):
             end,
         )
 
-        log_args = []
-        if self._handlers is not None:
-            log_args = [handler(log_context) for handler in self._handlers]
+        if self._handlers is None:
+            return
+
+        log_args = [handler(log_context) for handler in self._handlers]
 
         self._logger.log(
             self._level,
             self._separator.join(["%s"] * len(log_args)),
             *log_args,
         )
-
-        return response

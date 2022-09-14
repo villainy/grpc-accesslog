@@ -1,12 +1,14 @@
 """Server interceptor tests."""
 import logging
 import re
+from typing import Iterator
 from unittest.mock import Mock
 
 from pytest import LogCaptureFixture
 
 from grpc_accesslog import AccessLogInterceptor
 from grpc_accesslog import handlers
+from grpc_accesslog._context import LogContext
 
 
 def test_default_handlers() -> None:
@@ -33,6 +35,59 @@ def test_intercept(caplog: LogCaptureFixture) -> None:
     interceptor.intercept(Mock(), Mock(), Mock(), "/abc/Test")
 
     assert "this that" in caplog.text
+
+
+def test_intercept_no_handlers(caplog: LogCaptureFixture) -> None:
+    """Test interceptor behavior with no handlers does nothing."""
+    caplog.set_level(logging.INFO, logger="root")
+
+    interceptor = AccessLogInterceptor(
+        name="root",
+        handlers=None,
+        propagate=True,
+    )
+
+    interceptor._handlers = None
+
+    interceptor.intercept(Mock(), Mock(), Mock(), "/abc/Test")
+
+    assert not caplog.text
+
+
+def test_intercept_unary_stream(caplog: LogCaptureFixture) -> None:
+    """Test server-streaming interceptor."""
+    caplog.set_level(logging.INFO)
+
+    def _handler(context: LogContext) -> str:
+        return context.method_name
+
+    interceptor = AccessLogInterceptor(
+        name="root",
+        handlers=[
+            _handler,
+        ],
+        propagate=True,
+    )
+
+    method = Mock(name="method")
+
+    def _response() -> Iterator[int]:
+        logging.info("test1")
+        yield 0
+        logging.info("test2")
+        yield 1
+
+    method.return_value = _response()
+
+    request = Mock(name="request")
+    context = Mock(name="context")
+
+    for _ in interceptor.intercept(method, request, context, "method_name"):
+        pass
+
+    assert re.match(
+        r"^.*test1.*test2.*method_name.*", caplog.text, re.MULTILINE | re.DOTALL
+    )
 
 
 def test_rtt_handler_succeeds(caplog: LogCaptureFixture) -> None:
