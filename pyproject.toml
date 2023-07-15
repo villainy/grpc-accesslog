@@ -16,7 +16,7 @@ classifiers = [
 Changelog = "https://github.com/villainy/grpc-accesslog/releases"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 grpc-interceptor = ">=0.13.0"
 grpc-stubs = ">=1.24.5"
 
