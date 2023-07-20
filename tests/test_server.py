@@ -13,6 +13,7 @@ from grpc_accesslog import AccessLogInterceptor
 from grpc_accesslog import handlers
 from grpc_accesslog._context import LogContext
 
+from ._server import Servicer
 from .proto import test_service_pb2
 from .proto import test_service_pb2_grpc
 
@@ -141,7 +142,7 @@ def client_stub(interceptor):
         futures.ThreadPoolExecutor(max_workers=1), interceptors=[interceptor]
     )
     port = server.add_insecure_port("localhost:0")
-    servicer = test_service_pb2_grpc.TestServiceServicer()
+    servicer = Servicer()
 
     test_service_pb2_grpc.add_TestServiceServicer_to_server(servicer, server)
 
@@ -160,7 +161,6 @@ def test_testerson(caplog, interceptor, client_stub):
 
     interceptor._handlers = (lambda _: "this", lambda _: "that")
 
-    with pytest.raises(grpc.RpcError, match="UNIMPLEMENTED"):
-        client_stub.UnaryUnary(test_service_pb2.Request())
+    client_stub.UnaryUnary(test_service_pb2.Request())
 
     assert "this that" in caplog.text
