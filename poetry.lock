@@ -472,20 +472,20 @@ gitdb = ">=4.0.1,<5"
 
 [[package]]
 name = "grpc-interceptor"
-version = "0.15.0"
+version = "0.15.2"
 description = "Simplifies gRPC interceptors"
 optional = false
-python-versions = ">=3.6.1,<4.0.0"
+python-versions = ">=3.7,<4.0"
 files = [
-    {file = "grpc-interceptor-0.15.0.tar.gz", hash = "sha256:5c1aa9680b1d7e12259960c38057b121826860b05ebbc1001c74343b7ad1455e"},
-    {file = "grpc_interceptor-0.15.0-py3-none-any.whl", hash = "sha256:63e390162e64df96c39c40508eb697def76a7cafac32a7eaf9272093eec1109e"},
+    {file = "grpc-interceptor-0.15.2.tar.gz", hash = "sha256:5c984110af4fb77d03472ec0468f9c77ddaf798e190410fb7b7f1e76c60c96a4"},
+    {file = "grpc_interceptor-0.15.2-py3-none-any.whl", hash = "sha256:596dac3cb709ffb6178a4873f5148e254c871c9069f0b11040189b257969490a"},
 ]
 
 [package.dependencies]
-grpcio = ">=1.32.0,<2.0.0"
+grpcio = ">=1.49.1,<2.0.0"
 
 [package.extras]
-testing = ["protobuf (>=3.6.0)"]
+testing = ["protobuf (>=4.21.9)"]
 
 [[package]]
 name = "grpc-stubs"
