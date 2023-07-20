@@ -123,19 +123,20 @@ def test_rtt_handler_succeeds(caplog: LogCaptureFixture) -> None:
     assert re.match(r"^.*this \d+", caplog.text)
 
 
-def test_testerson(caplog):
-    """Testing the testersons."""
-    caplog.set_level(logging.INFO, logger="root")
-
+@pytest.fixture
+def interceptor():
+    """Provide a configured interceptor."""
     interceptor = AccessLogInterceptor(
         name="root",
-        handlers=(
-            lambda _: "this",
-            lambda _: "that",
-        ),
         propagate=True,
     )
 
+    return interceptor
+
+
+@pytest.fixture
+def client_stub(interceptor):
+    """Provide a connected gRPC client stub."""
     server = grpc.server(
         futures.ThreadPoolExecutor(max_workers=1), interceptors=[interceptor]
     )
@@ -148,9 +149,18 @@ def test_testerson(caplog):
 
     with grpc.insecure_channel(f"localhost:{port}") as channel:
         stub = test_service_pb2_grpc.TestServiceStub(channel)
-        with pytest.raises(grpc.RpcError, match="UNIMPLEMENTED"):
-            stub.UnaryUnary(test_service_pb2.Request())
+        yield stub
 
     server.stop(grace=0)
+
+
+def test_testerson(caplog, interceptor, client_stub):
+    """Testing the testersons."""
+    caplog.set_level(logging.INFO, logger="root")
+
+    interceptor._handlers = (lambda _: "this", lambda _: "that")
+
+    with pytest.raises(grpc.RpcError, match="UNIMPLEMENTED"):
+        client_stub.UnaryUnary(test_service_pb2.Request())
 
     assert "this that" in caplog.text
