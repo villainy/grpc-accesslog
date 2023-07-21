@@ -153,17 +153,20 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
                     )
 
                 start = datetime.now(timezone.utc)
-                response = behavior(request_or_iterator, context)
-                end = datetime.now(timezone.utc)
-                self._write_log(
-                    context,
-                    handler_call_details.method,
-                    request_or_iterator,
-                    response,
-                    start,
-                    end,
-                )
-                return response
+                response = None
+                try:
+                    response = behavior(request_or_iterator, context)
+                    return response
+                finally:
+                    end = datetime.now(timezone.utc)
+                    self._write_log(
+                        context,
+                        handler_call_details.method,
+                        request_or_iterator,
+                        response,
+                        start,
+                        end,
+                    )
 
             return logging_interceptor
 
@@ -173,14 +176,16 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
         self, behavior, handler_call_details, request_or_iterator, context
     ):
         start = datetime.now(timezone.utc)
-        response = behavior(request_or_iterator, context)
-        end = datetime.now(timezone.utc)
-        self._write_log(
-            context,
-            handler_call_details.method,
-            request_or_iterator,
-            response,
-            start,
-            end,
-        )
-        return response
+        try:
+            yield from behavior(request_or_iterator, context)
+        finally:
+            end = datetime.now(timezone.utc)
+            self._write_log(
+                context,
+                handler_call_details.method,
+                request_or_iterator,
+                # TODO what to do with streaming responses?
+                None,
+                start,
+                end,
+            )
