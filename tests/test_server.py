@@ -1,5 +1,6 @@
 """Server interceptor tests."""
 import logging
+import time
 from concurrent import futures
 
 import grpc
@@ -52,7 +53,7 @@ def test_default_handlers() -> None:
     assert len(list(interceptor._handlers)) > 0
 
 
-def test_intercept(
+def test_intercept_unaryunary(
     caplog: LogCaptureFixture,
     interceptor: AccessLogInterceptor,
     client_stub: test_service_pb2_grpc.TestServiceStub,
@@ -62,9 +63,87 @@ def test_intercept(
 
     interceptor._handlers = (lambda _: "this", lambda _: "that")
 
-    client_stub.UnaryUnary(test_service_pb2.Request())
+    client_stub.UnaryUnary(test_service_pb2.Request(data="data"))
 
     assert "this that" in caplog.text
+
+
+def test_intercept_unarystream(
+    caplog: LogCaptureFixture,
+    interceptor: AccessLogInterceptor,
+    client_stub: test_service_pb2_grpc.TestServiceStub,
+):
+    """Test interceptor."""
+    caplog.set_level(logging.INFO, logger="root")
+
+    interceptor._handlers = (lambda _: "this", lambda _: "that")
+
+    response = client_stub.UnaryStream(test_service_pb2.Request(data="data"))
+    for _ in range(0, 3):
+        assert "this that" not in caplog.text
+        next(response)
+    next(response)
+
+    time.sleep(0.5)
+    assert "this that" in caplog.text
+
+    with pytest.raises(StopIteration):
+        next(response)
+
+
+def test_intercept_streamunary(
+    caplog: LogCaptureFixture,
+    interceptor: AccessLogInterceptor,
+    client_stub: test_service_pb2_grpc.TestServiceStub,
+):
+    """Test interceptor."""
+    caplog.set_level(logging.INFO, logger="root")
+
+    interceptor._handlers = (lambda _: "this", lambda _: "that")
+
+    client_stub.StreamUnary(
+        iter(
+            (
+                test_service_pb2.Request(data="data"),
+                test_service_pb2.Request(data="data"),
+                test_service_pb2.Request(data="data"),
+            )
+        )
+    )
+
+    assert "this that" in caplog.text
+
+
+def test_intercept_streamstream(
+    caplog: LogCaptureFixture,
+    interceptor: AccessLogInterceptor,
+    client_stub: test_service_pb2_grpc.TestServiceStub,
+):
+    """Test interceptor."""
+    caplog.set_level(logging.INFO, logger="root")
+
+    interceptor._handlers = (lambda _: "this", lambda _: "that")
+
+    response = client_stub.StreamStream(
+        iter(
+            (
+                test_service_pb2.Request(data="data"),
+                test_service_pb2.Request(data="data"),
+                test_service_pb2.Request(data="data"),
+                test_service_pb2.Request(data="data"),
+            )
+        )
+    )
+    for _ in range(0, 3):
+        assert "this that" not in caplog.text
+        next(response)
+    next(response)
+
+    time.sleep(0.5)
+    assert "this that" in caplog.text
+
+    with pytest.raises(StopIteration):
+        next(response)
 
 
 def test_intercept_no_handlers(
@@ -77,6 +156,6 @@ def test_intercept_no_handlers(
 
     interceptor._handlers = None
 
-    client_stub.UnaryUnary(test_service_pb2.Request())
+    client_stub.UnaryUnary(test_service_pb2.Request(data="data"))
 
     assert not caplog.text
