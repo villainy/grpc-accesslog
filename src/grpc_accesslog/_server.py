@@ -5,28 +5,35 @@ from datetime import timezone
 from typing import Any
 from typing import Callable
 from typing import Iterable
+from typing import Iterator
 from typing import Optional
 from typing import Union
 
 import grpc
+from google.protobuf.message import Message
 
 from . import handlers as _handlers
 from ._context import LogContext
 
 
-_RpcCallable = Callable[[Any, grpc.ServicerContext], Any]
+_Request = Union[Message, Iterator[Message]]
+_Response = Union[Message, Iterator[Message]]
+_RpcCallable = Callable[[_Request, grpc.ServicerContext], _Response]
 _InterceptCallable = Callable[
     [grpc.HandlerCallDetails], Union[grpc.RpcMethodHandler, None]
 ]
 
 
 def _wrap_rpc_behavior(
-    handler: Optional[grpc.RpcMethodHandler],
-    continuation: Callable[[_RpcCallable, bool, bool], _RpcCallable],
-):
+    handler: Optional[grpc.RpcMethodHandler[_Request, _Response]],
+    continuation: Callable[
+        [_RpcCallable, bool, bool],
+        Callable[[_Request, grpc.ServicerContext], _Response],
+    ],
+) -> Union[grpc.RpcMethodHandler[_Request, _Response], None]:
     """Wrap an RPC call.
 
-    See https://github.com/grpc/grpc/issues/18191
+    From https://github.com/grpc/grpc/issues/18191#issuecomment-574735994
     """
     if handler is None:
         return None
@@ -53,7 +60,7 @@ def _wrap_rpc_behavior(
     )
 
 
-class AccessLogInterceptor(grpc.ServerInterceptor):
+class AccessLogInterceptor(grpc.ServerInterceptor[_Request, _Response]):
     """Generate a log line for each RPC invocation."""
 
     def __init__(
@@ -132,17 +139,17 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
         self,
         continuation: _InterceptCallable,
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> Any:
+    ) -> Union[grpc.RpcMethodHandler[_Request, _Response], None]:
         """Intercept an RPC."""
 
         def logging_wrapper(
             behavior: _RpcCallable,
             request_streaming: bool,
             response_streaming: bool,
-        ):
+        ) -> Callable[[_Request, grpc.ServicerContext], _Response]:
             def logging_interceptor(
-                request_or_iterator: Any, context: grpc.ServicerContext
-            ) -> Any:
+                request_or_iterator: _Request, context: grpc.ServicerContext
+            ) -> _Response:
                 # handle streaming responses specially
                 if response_streaming:
                     return self._intercept_server_stream(
@@ -173,8 +180,12 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
         return _wrap_rpc_behavior(continuation(handler_call_details), logging_wrapper)
 
     def _intercept_server_stream(
-        self, behavior, handler_call_details, request_or_iterator, context
-    ):
+        self,
+        behavior: Callable[[_Request, grpc.ServicerContext], Iterator[Message]],
+        handler_call_details: grpc.HandlerCallDetails,
+        request_or_iterator: _Request,
+        context: grpc.ServicerContext,
+    ) -> Iterator[Message]:
         start = datetime.now(timezone.utc)
         try:
             yield from behavior(request_or_iterator, context)
