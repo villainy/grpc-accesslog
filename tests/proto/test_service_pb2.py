@@ -22,7 +22,6 @@ _builder.BuildTopDescriptorsAndMessages(
     DESCRIPTOR, "tests.proto.test_service_pb2", _globals
 )
 if _descriptor._USE_C_DESCRIPTORS == False:
-
     DESCRIPTOR._options = None
     _globals["_REQUEST"]._serialized_start = 34
     _globals["_REQUEST"]._serialized_end = 57
