@@ -2,7 +2,6 @@
 import logging
 import time
 from concurrent import futures
-from typing import Any
 
 import grpc
 import pytest
@@ -49,7 +48,7 @@ def client_stub(interceptor):
 
 def test_default_handlers() -> None:
     """Ensure default handlers are added."""
-    interceptor: AccessLogInterceptor[Any, Any] = AccessLogInterceptor()
+    interceptor: AccessLogInterceptor = AccessLogInterceptor()
 
     assert interceptor._handlers is not None
     assert len(list(interceptor._handlers)) > 0
