@@ -1,12 +1,13 @@
 """gRPC access log server interceptor."""
+from __future__ import annotations
+
 import logging
 from datetime import datetime
 from datetime import timezone
+from typing import TYPE_CHECKING
 from typing import Callable
 from typing import Iterable
 from typing import Iterator
-from typing import Optional
-from typing import Union
 
 import grpc
 
@@ -14,13 +15,23 @@ from . import handlers as _handlers
 from ._context import LogContext
 
 
+if TYPE_CHECKING:
+    ServerInterceptor = grpc.ServerInterceptor[grpc.TRequest, grpc.TResponse]
+else:
+    ServerInterceptor = grpc.ServerInterceptor
+
+
 def _wrap_rpc_behavior(
-    handler: Optional[grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse]],
+    handler: grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse] | None,
     continuation: Callable[
-        [Callable[[grpc.TRequest, grpc.ServicerContext], grpc.TResponse], bool, bool],
+        [
+            Callable[[grpc.TRequest, grpc.ServicerContext], grpc.TResponse],
+            bool,
+            bool,
+        ],
         Callable[[grpc.TRequest, grpc.ServicerContext], grpc.TResponse],
     ],
-) -> Union[grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse], None]:
+) -> grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse] | None:
     """Wrap an RPC call.
 
     From https://github.com/grpc/grpc/issues/18191#issuecomment-574735994
@@ -52,14 +63,14 @@ def _wrap_rpc_behavior(
     )
 
 
-class AccessLogInterceptor(grpc.ServerInterceptor[grpc.TRequest, grpc.TResponse]):
+class AccessLogInterceptor(ServerInterceptor):
     """Generate a log line for each RPC invocation."""
 
     def __init__(
         self,
         level: int = logging.INFO,
         name: str = __name__,
-        handlers: Optional[Iterable[Callable[[LogContext], str]]] = None,
+        handlers: Iterable[Callable[[LogContext], str]] | None = None,
         separator: str = " ",
         propagate: bool = False,
     ) -> None:
@@ -103,7 +114,7 @@ class AccessLogInterceptor(grpc.ServerInterceptor[grpc.TRequest, grpc.TResponse]
         context: grpc.ServicerContext,
         method_name: str,
         request: grpc.TRequest,
-        response: Optional[grpc.TResponse],
+        response: grpc.TResponse | None,
         start: datetime,
         end: datetime,
     ) -> None:
@@ -133,10 +144,10 @@ class AccessLogInterceptor(grpc.ServerInterceptor[grpc.TRequest, grpc.TResponse]
         self,
         continuation: Callable[
             [grpc.HandlerCallDetails],
-            Union[grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse], None],
+            grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse] | None,
         ],
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> Union[grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse], None]:
+    ) -> grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse] | None:
         """Intercept an RPC."""
 
         def logging_wrapper(
