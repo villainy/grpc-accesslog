@@ -2,6 +2,7 @@
 import logging
 import time
 from concurrent import futures
+from typing import Any
 
 import grpc
 import pytest
@@ -48,7 +49,7 @@ def client_stub(interceptor):
 
 def test_default_handlers() -> None:
     """Ensure default handlers are added."""
-    interceptor = AccessLogInterceptor()
+    interceptor: AccessLogInterceptor[Any, Any] = AccessLogInterceptor()
 
     assert interceptor._handlers is not None
     assert len(list(interceptor._handlers)) > 0
@@ -58,7 +59,7 @@ def test_intercept_unaryunary(
     caplog: LogCaptureFixture,
     interceptor: AccessLogInterceptor,
     client_stub: test_service_pb2_grpc.TestServiceStub,
-):
+) -> None:
     """Test interceptor."""
     caplog.set_level(logging.INFO, logger="root")
 
@@ -73,7 +74,7 @@ def test_intercept_unarystream(
     caplog: LogCaptureFixture,
     interceptor: AccessLogInterceptor,
     client_stub: test_service_pb2_grpc.TestServiceStub,
-):
+) -> None:
     """Test interceptor."""
     caplog.set_level(logging.INFO, logger="root")
 
@@ -96,7 +97,7 @@ def test_intercept_streamunary(
     caplog: LogCaptureFixture,
     interceptor: AccessLogInterceptor,
     client_stub: test_service_pb2_grpc.TestServiceStub,
-):
+) -> None:
     """Test interceptor."""
     caplog.set_level(logging.INFO, logger="root")
 
@@ -162,6 +163,6 @@ def test_intercept_no_handlers(
     assert not caplog.text
 
 
-def test_wrap_no_handler():
+def test_wrap_no_handler() -> None:
     """Handle edge case calling wrapper with no handler."""
-    assert grpc_accesslog._server._wrap_rpc_behavior(None, None) is None
+    assert grpc_accesslog._server._wrap_rpc_behavior(None, None) is None  # type: ignore
