@@ -563,20 +563,6 @@ grpcio = ">=1.49.1,<2.0.0"
 testing = ["protobuf (>=4.21.9)"]
 
 [[package]]
-name = "grpc-stubs"
-version = "1.53.0.2"
-description = "Mypy stubs for gRPC"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "grpc-stubs-1.53.0.2.tar.gz", hash = "sha256:99cb4fc64d257cd5e402c61ba92fc5ce5f9daf08cc8ee03c112dd2329b4fe3ce"},
-    {file = "grpc_stubs-1.53.0.2-py3-none-any.whl", hash = "sha256:f7ed97a001f2b423c7e7249946ea2bf4a41843a081d693e6cc329df587d61050"},
-]
-
-[package.dependencies]
-grpcio = "*"
-
-[[package]]
 name = "grpcio"
 version = "1.56.2"
 description = "HTTP/2-based RPC framework"
@@ -1638,25 +1624,6 @@ files = [
 ]
 
 [[package]]
-name = "typeguard"
-version = "4.0.0"
-description = "Run-time type checker for Python"
-optional = false
-python-versions = ">=3.7.4"
-files = [
-    {file = "typeguard-4.0.0-py3-none-any.whl", hash = "sha256:c4a40af0ba8a41077221271b46d0a6d8d46045443e4d887887c69254ca861952"},
-    {file = "typeguard-4.0.0.tar.gz", hash = "sha256:194fb3dbcb06ea9caf7088f3befee014de57961689f9c859ac5239b1ef61d987"},
-]
-
-[package.dependencies]
-importlib-metadata = {version = ">=3.6", markers = "python_version < \"3.10\""}
-typing-extensions = {version = ">=4.4.0", markers = "python_version < \"3.11\""}
-
-[package.extras]
-doc = ["packaging", "sphinx-autodoc-typehints (>=1.2.0)", "sphinx-rtd-theme"]
-test = ["mypy (>=1.2.0)", "pytest (>=7)"]
-
-[[package]]
 name = "types-protobuf"
 version = "4.23.0.2"
 description = "Typing stubs for protobuf"
@@ -1762,4 +1729,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "1163893fbd83a5b17e2b6ca33cb222951b05a7f626a174c4bdf51fff3b576919"
+content-hash = "43c558ae0e7a5ec2aefbdeec4d57c133fe2691ae5460bcdcfa78495372425a5c"
