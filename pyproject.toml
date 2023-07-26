@@ -42,9 +42,7 @@ safety = ">=1.10.3"
 sphinx = ">=4.3.2"
 sphinx-autobuild = ">=2021.3.14"
 sphinx-click = ">=3.0.2"
-typeguard = ">=2.13.3"
 xdoctest = {extras = ["colors"], version = ">=0.15.10"}
-grpc-stubs = "^1.53.0.2"
 types-protobuf = "^4.23.0.2"
 
 [tool.poetry.scripts]
@@ -74,6 +72,10 @@ pretty = true
 show_column_numbers = true
 show_error_codes = true
 show_error_context = true
+
+[[tool.mypy.overrides]]
+module = [ "grpc" ]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 addopts = "--ignore=tests/proto/"
