@@ -1,13 +1,12 @@
 """gRPC access log server interceptor."""
-from __future__ import annotations
-
 import logging
 from datetime import datetime
 from datetime import timezone
-from typing import TYPE_CHECKING
+from typing import Any
 from typing import Callable
 from typing import Iterable
 from typing import Iterator
+from typing import Optional
 
 import grpc
 
@@ -15,46 +14,37 @@ from . import handlers as _handlers
 from ._context import LogContext
 
 
-if TYPE_CHECKING:
-    ServerInterceptor = grpc.ServerInterceptor[grpc.TRequest, grpc.TResponse]
-else:
-    ServerInterceptor = grpc.ServerInterceptor
-
-
 def _wrap_rpc_behavior(
-    handler: grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse] | None,
+    handler: grpc.RpcMethodHandler,
     continuation: Callable[
         [
-            Callable[[grpc.TRequest, grpc.ServicerContext], grpc.TResponse],
+            Callable[[Any, grpc.ServicerContext], Any],
             bool,
             bool,
         ],
-        Callable[[grpc.TRequest, grpc.ServicerContext], grpc.TResponse],
+        Callable[[Any, grpc.ServicerContext], Any],
     ],
-) -> grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse] | None:
+) -> grpc.RpcMethodHandler:
     """Wrap an RPC call.
 
     From https://github.com/grpc/grpc/issues/18191#issuecomment-574735994
     """
-    if handler is None:
-        return None
-
     if handler.request_streaming and handler.response_streaming:
         behavior_fn = handler.stream_stream
         handler_factory = grpc.stream_stream_rpc_method_handler
     elif handler.request_streaming and not handler.response_streaming:
-        behavior_fn = handler.stream_unary  # type: ignore
+        behavior_fn = handler.stream_unary
         handler_factory = grpc.stream_unary_rpc_method_handler
     elif not handler.request_streaming and handler.response_streaming:
-        behavior_fn = handler.unary_stream  # type: ignore
+        behavior_fn = handler.unary_stream
         handler_factory = grpc.unary_stream_rpc_method_handler
     else:
-        behavior_fn = handler.unary_unary  # type: ignore
+        behavior_fn = handler.unary_unary
         handler_factory = grpc.unary_unary_rpc_method_handler
 
     return handler_factory(
         continuation(
-            behavior_fn,  # type: ignore
+            behavior_fn,
             handler.request_streaming,
             handler.response_streaming,
         ),
@@ -63,14 +53,14 @@ def _wrap_rpc_behavior(
     )
 
 
-class AccessLogInterceptor(ServerInterceptor):
+class AccessLogInterceptor(grpc.ServerInterceptor):
     """Generate a log line for each RPC invocation."""
 
     def __init__(
         self,
         level: int = logging.INFO,
         name: str = __name__,
-        handlers: Iterable[Callable[[LogContext], str]] | None = None,
+        handlers: Optional[Iterable[Callable[[LogContext], str]]] = None,
         separator: str = " ",
         propagate: bool = False,
     ) -> None:
@@ -113,8 +103,8 @@ class AccessLogInterceptor(ServerInterceptor):
         self,
         context: grpc.ServicerContext,
         method_name: str,
-        request: grpc.TRequest,
-        response: grpc.TResponse | None,
+        request: Any,
+        response: Optional[Any],
         start: datetime,
         end: datetime,
     ) -> None:
@@ -138,30 +128,28 @@ class AccessLogInterceptor(ServerInterceptor):
             *log_args,
         )
 
-    # Work around grpc-stubs typing bug. The continuation param and return value
-    # are documented as optional but do not allow None in typing stubs.
-    def intercept_service(  # type: ignore
+    def intercept_service(
         self,
         continuation: Callable[
             [grpc.HandlerCallDetails],
-            grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse] | None,
+            grpc.RpcMethodHandler,
         ],
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> grpc.RpcMethodHandler[grpc.TRequest, grpc.TResponse] | None:
+    ) -> grpc.RpcMethodHandler:
         """Intercept an RPC."""
 
         def logging_wrapper(
-            behavior: Callable[[grpc.TRequest, grpc.ServicerContext], grpc.TResponse],
+            behavior: Callable[[Any, grpc.ServicerContext], Any],
             request_streaming: bool,
             response_streaming: bool,
-        ) -> Callable[[grpc.TRequest, grpc.ServicerContext], grpc.TResponse]:
+        ) -> Callable[[Any, grpc.ServicerContext], Any]:
             def logging_interceptor(
-                request_or_iterator: grpc.TRequest, context: grpc.ServicerContext
-            ) -> grpc.TResponse:
+                request_or_iterator: Any, context: grpc.ServicerContext
+            ) -> Any:
                 # handle streaming responses specially
                 if response_streaming:
-                    return self._intercept_server_stream(  # type: ignore
-                        behavior,  # type: ignore
+                    return self._intercept_server_stream(
+                        behavior,
                         handler_call_details,
                         request_or_iterator,
                         context,
@@ -189,13 +177,11 @@ class AccessLogInterceptor(ServerInterceptor):
 
     def _intercept_server_stream(
         self,
-        behavior: Callable[
-            [grpc.TRequest, grpc.ServicerContext], Iterator[grpc.TResponse]
-        ],
+        behavior: Callable[[Any, grpc.ServicerContext], Iterator[Any]],
         handler_call_details: grpc.HandlerCallDetails,
-        request_or_iterator: grpc.TRequest,
+        request_or_iterator: Any,
         context: grpc.ServicerContext,
-    ) -> Iterator[grpc.TResponse]:
+    ) -> Iterator[Any]:
         start = datetime.now(timezone.utc)
         try:
             yield from behavior(request_or_iterator, context)

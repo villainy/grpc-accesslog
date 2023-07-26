@@ -7,7 +7,6 @@ import grpc
 import pytest
 from pytest import LogCaptureFixture
 
-import grpc_accesslog
 from grpc_accesslog import AccessLogInterceptor
 
 from ._server import Servicer
@@ -160,8 +159,3 @@ def test_intercept_no_handlers(
     client_stub.UnaryUnary(test_service_pb2.Request(data="data"))
 
     assert not caplog.text
-
-
-def test_wrap_no_handler() -> None:
-    """Handle edge case calling wrapper with no handler."""
-    assert grpc_accesslog._server._wrap_rpc_behavior(None, None) is None  # type: ignore
