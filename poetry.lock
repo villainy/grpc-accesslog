@@ -546,23 +546,6 @@ files = [
 gitdb = ">=4.0.1,<5"
 
 [[package]]
-name = "grpc-interceptor"
-version = "0.15.2"
-description = "Simplifies gRPC interceptors"
-optional = false
-python-versions = ">=3.7,<4.0"
-files = [
-    {file = "grpc-interceptor-0.15.2.tar.gz", hash = "sha256:5c984110af4fb77d03472ec0468f9c77ddaf798e190410fb7b7f1e76c60c96a4"},
-    {file = "grpc_interceptor-0.15.2-py3-none-any.whl", hash = "sha256:596dac3cb709ffb6178a4873f5148e254c871c9069f0b11040189b257969490a"},
-]
-
-[package.dependencies]
-grpcio = ">=1.49.1,<2.0.0"
-
-[package.extras]
-testing = ["protobuf (>=4.21.9)"]
-
-[[package]]
 name = "grpcio"
 version = "1.56.2"
 description = "HTTP/2-based RPC framework"
@@ -1729,4 +1712,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "43c558ae0e7a5ec2aefbdeec4d57c133fe2691ae5460bcdcfa78495372425a5c"
+content-hash = "6b4966cafb1659950e19851410ef1e991053b77632140a3d163615105ae38e9d"
