@@ -1,6 +1,5 @@
 """Server interceptor tests."""
 import logging
-import time
 from concurrent import futures
 
 import grpc
@@ -79,16 +78,14 @@ def test_intercept_unarystream(
     interceptor._handlers = (lambda _: "this", lambda _: "that")
 
     response = client_stub.UnaryStream(test_service_pb2.Request(data="data"))
-    for _ in range(0, 3):
+    for _ in range(0, 4):
         assert "this that" not in caplog.text
         next(response)
-    next(response)
-
-    time.sleep(0.5)
-    assert "this that" in caplog.text
 
     with pytest.raises(StopIteration):
         next(response)
+
+    assert "this that" in caplog.text
 
 
 def test_intercept_streamunary(
@@ -134,16 +131,14 @@ def test_intercept_streamstream(
             )
         )
     )
-    for _ in range(0, 3):
+    for _ in range(0, 4):
         assert "this that" not in caplog.text
         next(response)
-    next(response)
-
-    time.sleep(0.5)
-    assert "this that" in caplog.text
 
     with pytest.raises(StopIteration):
         next(response)
+
+    assert "this that" in caplog.text
 
 
 def test_intercept_no_handlers(

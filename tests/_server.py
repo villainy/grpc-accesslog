@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from typing import Iterator
 
 import grpc
@@ -26,6 +27,7 @@ class Servicer(TestServiceServicer):
         """Handle a UnaryStream request."""
         for char in request.data:
             yield Response(data=char)
+            time.sleep(0.1)
 
     def StreamUnary(  # noqa: N802
         self, request_iterator: Iterator[Request], context: grpc.ServicerContext
@@ -39,3 +41,4 @@ class Servicer(TestServiceServicer):
         """Handle a StreamStream request."""
         for request in request_iterator:
             yield Response(data=request.data)
+            time.sleep(0.1)
