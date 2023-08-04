@@ -18,6 +18,20 @@ Inject an instance of the interceptor when creating a gRPC server:
       interceptors=interceptors
    )
 
+Or with an asyncio server:
+
+.. code-block:: python
+
+   from concurrent import futures
+   import grpc.aio
+   from grpc_accesslog import AsyncAccessLogInterceptor
+
+   interceptors = [AsyncAccessLogInterceptor()]
+   server = grpc.aio.server(
+      futures.ThreadPoolExecutor(max_workers=10),
+      interceptors=interceptors
+   )
+
 The server interceptor includes a complete default configuration. By default logs will be generated with the following format::
 
    [::1] [03/Apr/2021:17:19:41 +0000] /grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo OK 0 grpc-go/1.35.0
