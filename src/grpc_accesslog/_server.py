@@ -5,26 +5,31 @@ from datetime import datetime
 from datetime import timezone
 from typing import Any
 from typing import Callable
-from typing import Iterable
-from typing import Iterator
+from typing import List
 from typing import Optional
+from typing import TypeVar
 from typing import Union
 
 import grpc
 
-from . import handlers as _handlers
 from ._context import LogContext
+from .handlers import DEFAULT_HANDLERS
+from .handlers import THandler
+
+
+TRequest = TypeVar("TRequest")
+TResponse = TypeVar("TResponse")
 
 
 def _wrap_rpc_behavior(
     handler: Union[grpc.RpcMethodHandler, None],
     continuation: Callable[
         [
-            Callable[[Any, grpc.ServicerContext], Any],
+            Callable[[TRequest, grpc.ServicerContext], TResponse],
             bool,
             bool,
         ],
-        Callable[[Any, grpc.ServicerContext], Any],
+        Callable[[TRequest, grpc.ServicerContext], TResponse],
     ],
 ) -> Union[grpc.RpcMethodHandler, None]:
     """Wrap an RPC call.
@@ -49,7 +54,7 @@ def _wrap_rpc_behavior(
 
     return handler_factory(
         continuation(
-            behavior_fn,
+            behavior_fn,  # type: ignore
             handler.request_streaming,
             handler.response_streaming,
         ),
@@ -58,19 +63,19 @@ def _wrap_rpc_behavior(
     )
 
 
-class AccessLogInterceptor(grpc.ServerInterceptor):
-    """Generate a log line for each RPC invocation."""
+class AccessLogger:
+    """Access log writer."""
 
     def __init__(
         self,
         level: int = logging.INFO,
         name: str = __name__,
-        handlers: Optional[Iterable[Callable[[LogContext], str]]] = None,
+        handlers: List[THandler] = DEFAULT_HANDLERS,
         separator: str = " ",
         propagate: bool = False,
         logger: Optional[logging.Logger] = None,
     ) -> None:
-        """Create a logging interceptor.
+        """Create an access logging writer.
 
         Each provided handler will be called in order with a LogContext as
         the single positional argument. The resulting strings are joined
@@ -79,15 +84,13 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
         Args:
             level (int): Log level. Defaults to logging.INFO.
             name (str): Logger name. Defaults to __name__.
-            handlers (Iterable[Callable[[LogContext], str]]): LogContext
+            handlers (List[THandler]): LogContext
                 handlers collected in order. Defaults to None.
             separator (str): Log message separator. Defaults to " ".
             propagate (bool): Enable propagation to parent loggers. Defaults to False.
             logger (logging.Logger): The logger instance to use for access
                 logs. Optional, defaults to None.
         """
-        super().__init__()
-
         if logger is None:
             self._logger = logging.getLogger(name)
             self._logger.propagate = propagate
@@ -96,21 +99,10 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
             self._logger = logger
 
         self._level = level
-        self._format = format
         self._handlers = handlers
         self._separator = separator
 
-        if handlers is None:
-            self._handlers = [
-                _handlers.peer,
-                _handlers.time_received(),
-                _handlers.request,
-                _handlers.status,
-                _handlers.response_size,
-                _handlers.user_agent,
-            ]
-
-    def _write_log(
+    def log(
         self,
         context: grpc.ServicerContext,
         method_name: str,
@@ -119,6 +111,7 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
         start: datetime,
         end: datetime,
     ) -> None:
+        """Write a log line to stdout."""
         log_context = LogContext(
             context,
             method_name,
@@ -128,7 +121,7 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
             end,
         )
 
-        if self._handlers is None:
+        if not self._handlers:
             return
 
         log_args = [handler(log_context) for handler in self._handlers]
@@ -139,11 +132,15 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
             *log_args,
         )
 
+
+class AccessLogInterceptor(grpc.ServerInterceptor, AccessLogger):
+    """Generate a log line for each RPC invocation."""
+
     def intercept_service(
         self,
         continuation: Callable[
             [grpc.HandlerCallDetails],
-            grpc.RpcMethodHandler,
+            Union[grpc.RpcMethodHandler, None],
         ],
         handler_call_details: grpc.HandlerCallDetails,
     ) -> Union[grpc.RpcMethodHandler, None]:
@@ -157,15 +154,6 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
             def logging_interceptor(
                 request_or_iterator: Any, context: grpc.ServicerContext
             ) -> Any:
-                # handle streaming responses specially
-                if response_streaming:
-                    return self._intercept_server_stream(
-                        behavior,
-                        handler_call_details,
-                        request_or_iterator,
-                        context,
-                    )
-
                 start = datetime.now(timezone.utc)
                 response = None
                 try:
@@ -173,7 +161,7 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
                     return response
                 finally:
                     end = datetime.now(timezone.utc)
-                    self._write_log(
+                    self.log(
                         context,
                         handler_call_details.method,
                         request_or_iterator,
@@ -182,28 +170,26 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
                         end,
                     )
 
+            def logging_interceptor_stream(
+                request_or_iterator: Any, context: grpc.ServicerContext
+            ) -> Any:
+                start = datetime.now(timezone.utc)
+                try:
+                    yield from behavior(request_or_iterator, context)
+                finally:
+                    end = datetime.now(timezone.utc)
+                    self.log(
+                        context,
+                        handler_call_details.method,
+                        request_or_iterator,
+                        None,
+                        start,
+                        end,
+                    )
+
+            if response_streaming:
+                return logging_interceptor_stream
+
             return logging_interceptor
 
         return _wrap_rpc_behavior(continuation(handler_call_details), logging_wrapper)
-
-    def _intercept_server_stream(
-        self,
-        behavior: Callable[[Any, grpc.ServicerContext], Iterator[Any]],
-        handler_call_details: grpc.HandlerCallDetails,
-        request_or_iterator: Any,
-        context: grpc.ServicerContext,
-    ) -> Iterator[Any]:
-        start = datetime.now(timezone.utc)
-        try:
-            yield from behavior(request_or_iterator, context)
-        finally:
-            end = datetime.now(timezone.utc)
-            self._write_log(
-                context,
-                handler_call_details.method,
-                request_or_iterator,
-                # TODO what to do with streaming responses?
-                None,
-                start,
-                end,
-            )

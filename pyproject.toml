@@ -44,6 +44,8 @@ sphinx-autobuild = ">=2021.3.14"
 sphinx-click = ">=3.0.2"
 xdoctest = {extras = ["colors"], version = ">=0.15.10"}
 types-protobuf = "^4.23.0.2"
+grpc-stubs = "^1.53.0.5"
+pytest-asyncio = "^0.23.6"
 
 [tool.poetry.scripts]
 grpc-accesslog = "grpc_accesslog.__main__:main"

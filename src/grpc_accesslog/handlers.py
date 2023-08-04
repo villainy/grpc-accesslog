@@ -2,22 +2,26 @@
 
 from datetime import timedelta
 from typing import Callable
+from typing import List
 
 import grpc
 
 from ._context import LogContext
 
 
+THandler = Callable[[LogContext], str]
+
+
 def time_received(
     format: str = "[%d/%b/%Y:%H:%M:%S %z]",
-) -> Callable[[LogContext], str]:
+) -> THandler:
     """Parse RPC request received time into a strftime formatted string.
 
     Args:
         format (str): String format. Defaults to "[%d/%b/%Y:%H:%M:%S %z]".
 
     Returns:
-        Callable[[LogContext], str]: LogContext handler
+        THandler: LogContext handler
     """
 
     def inner(context: LogContext) -> str:
@@ -28,14 +32,14 @@ def time_received(
 
 def time_complete(
     format: str = "[%d/%b/%Y:%H:%M:%S %z]",
-) -> Callable[[LogContext], str]:
+) -> THandler:
     """Parse RPC request completion time into a strftime formatted string.
 
     Args:
         format (str): String format. Defaults to "[%d/%b/%Y:%H:%M:%S %z]".
 
     Returns:
-        Callable[[LogContext], str]: LogContext handler
+        THandler: LogContext handler
     """
 
     def inner(context: LogContext) -> str:
@@ -81,8 +85,9 @@ def status(context: LogContext) -> str:
     code = grpc.StatusCode.OK.name
     # TODO gRPC status code is not exposed publicly anywhere in the server
     # interceptor's context
-    if context.server_context._state.code:  # type: ignore
-        code = context.server_context._state.code.name  # type: ignore
+    if getattr(context.server_context, "_state", None):
+        if context.server_context._state.code:  # type: ignore
+            code = context.server_context._state.code.name  # type: ignore
 
     return str(code)
 
@@ -136,3 +141,13 @@ def user_agent(context: LogContext) -> str:
             return str(getattr(metadata, "value", "-"))
 
     return "-"
+
+
+DEFAULT_HANDLERS: List[THandler] = [
+    peer,
+    time_received(),
+    request,
+    status,
+    response_size,
+    user_agent,
+]

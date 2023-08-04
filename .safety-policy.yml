@@ -12,3 +12,6 @@ security:
     64227:
       reason: Required for sphinx until 3.8 support is removed.
       expires: "2024-06-01"
+    67895:
+      reason: Required for sphinx until 3.8 support is removed.
+      expires: "2024-06-01"

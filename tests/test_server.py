@@ -51,7 +51,7 @@ def test_default_handlers() -> None:
     """Ensure default handlers are added."""
     interceptor: AccessLogInterceptor = AccessLogInterceptor()
 
-    assert interceptor._handlers is not None
+    assert interceptor._handlers
     assert len(list(interceptor._handlers)) > 0
 
 
@@ -63,7 +63,7 @@ def test_intercept_unaryunary(
     """Test interceptor."""
     caplog.set_level(logging.INFO, logger="root")
 
-    interceptor._handlers = (lambda _: "this", lambda _: "that")
+    interceptor._handlers = (lambda _: "this", lambda _: "that")  # type: ignore
 
     client_stub.UnaryUnary(test_service_pb2.Request(data="data"))
 
@@ -78,7 +78,7 @@ def test_intercept_unarystream(
     """Test interceptor."""
     caplog.set_level(logging.INFO, logger="root")
 
-    interceptor._handlers = (lambda _: "this", lambda _: "that")
+    interceptor._handlers = (lambda _: "this", lambda _: "that")  # type: ignore
 
     response = client_stub.UnaryStream(test_service_pb2.Request(data="data"))
     for _ in range(0, 4):
@@ -99,7 +99,7 @@ def test_intercept_streamunary(
     """Test interceptor."""
     caplog.set_level(logging.INFO, logger="root")
 
-    interceptor._handlers = (lambda _: "this", lambda _: "that")
+    interceptor._handlers = (lambda _: "this", lambda _: "that")  # type: ignore
 
     client_stub.StreamUnary(
         iter(
@@ -122,7 +122,7 @@ def test_intercept_streamstream(
     """Test interceptor."""
     caplog.set_level(logging.INFO, logger="root")
 
-    interceptor._handlers = (lambda _: "this", lambda _: "that")
+    interceptor._handlers = (lambda _: "this", lambda _: "that")  # type: ignore
 
     response = client_stub.StreamStream(
         iter(
@@ -152,7 +152,7 @@ def test_intercept_no_handlers(
     """Test interceptor behavior with no handlers does nothing."""
     caplog.set_level(logging.INFO, logger="root")
 
-    interceptor._handlers = None
+    interceptor._handlers = []
 
     client_stub.UnaryUnary(test_service_pb2.Request(data="data"))
 
