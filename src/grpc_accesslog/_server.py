@@ -8,6 +8,7 @@ from typing import Callable
 from typing import Iterable
 from typing import Iterator
 from typing import Optional
+from typing import Union
 
 import grpc
 
@@ -16,7 +17,7 @@ from ._context import LogContext
 
 
 def _wrap_rpc_behavior(
-    handler: grpc.RpcMethodHandler,
+    handler: Union[grpc.RpcMethodHandler, None],
     continuation: Callable[
         [
             Callable[[Any, grpc.ServicerContext], Any],
@@ -25,11 +26,14 @@ def _wrap_rpc_behavior(
         ],
         Callable[[Any, grpc.ServicerContext], Any],
     ],
-) -> grpc.RpcMethodHandler:
+) -> Union[grpc.RpcMethodHandler, None]:
     """Wrap an RPC call.
 
     From https://github.com/grpc/grpc/issues/18191#issuecomment-574735994
     """
+    if handler is None:
+        return None
+
     if handler.request_streaming and handler.response_streaming:
         behavior_fn = handler.stream_stream
         handler_factory = grpc.stream_stream_rpc_method_handler
@@ -142,7 +146,7 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
             grpc.RpcMethodHandler,
         ],
         handler_call_details: grpc.HandlerCallDetails,
-    ) -> grpc.RpcMethodHandler:
+    ) -> Union[grpc.RpcMethodHandler, None]:
         """Intercept an RPC."""
 
         def logging_wrapper(

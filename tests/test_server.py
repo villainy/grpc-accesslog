@@ -9,6 +9,7 @@ import pytest
 from pytest import LogCaptureFixture
 
 from grpc_accesslog import AccessLogInterceptor
+from grpc_accesslog._server import _wrap_rpc_behavior
 
 from ._server import Servicer
 from .proto import test_service_pb2
@@ -158,10 +159,62 @@ def test_intercept_no_handlers(
     assert not caplog.text
 
 
-def test_custom_logger(caplog: LogCaptureFixture) -> None:
+def test_custom_logger() -> None:
     """Test setting custom logger."""
     logger = mock.Mock()
 
     interceptor = AccessLogInterceptor(logger=logger)
 
     assert interceptor._logger == logger
+
+
+@pytest.mark.parametrize(
+    "request_streaming,response_streaming,cardinality",
+    [
+        (False, False, "unary_unary"),
+        (True, False, "stream_unary"),
+        (False, True, "unary_stream"),
+        (True, True, "stream_stream"),
+    ],
+)
+def test_wrapper(
+    request_streaming: bool, response_streaming: bool, cardinality: str
+) -> None:
+    """Test rpc wrapper handling of cardinality."""
+
+    class MethodHandler(grpc.RpcMethodHandler):
+        def __init__(self, handler):
+            self.request_streaming = request_streaming
+            self.response_streaming = response_streaming
+            self.request_deserializer = None
+            self.response_serializer = None
+            self.unary_unary = None
+            self.unary_stream = None
+            self.stream_unary = None
+            self.stream_stream = None
+            setattr(self, cardinality, handler)
+
+    handler = MethodHandler(mock.Mock(spec=grpc.RpcMethodHandler))
+    continuation = mock.Mock()
+
+    with mock.patch(
+        f"grpc_accesslog._server.grpc.{cardinality}_rpc_method_handler"
+    ) as rpc_method_handler:
+        result = _wrap_rpc_behavior(handler, continuation)
+
+    rpc_method_handler.assert_called_once_with(
+        continuation.return_value,
+        request_deserializer=handler.request_deserializer,
+        response_serializer=handler.response_serializer,
+    )
+    continuation.assert_called_once_with(
+        getattr(handler, cardinality),
+        handler.request_streaming,
+        handler.response_streaming,
+    )
+    assert result == rpc_method_handler.return_value
+
+
+def test_wrapper_none_handler():
+    """Test handling when provided handler is None."""
+    assert _wrap_rpc_behavior(None, mock.Mock()) is None
