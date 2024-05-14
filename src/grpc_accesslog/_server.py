@@ -64,6 +64,7 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
         handlers: Optional[Iterable[Callable[[LogContext], str]]] = None,
         separator: str = " ",
         propagate: bool = False,
+        logger: Optional[logging.Logger] = None,
     ) -> None:
         """Create a logging interceptor.
 
@@ -78,12 +79,17 @@ class AccessLogInterceptor(grpc.ServerInterceptor):
                 handlers collected in order. Defaults to None.
             separator (str): Log message separator. Defaults to " ".
             propagate (bool): Enable propagation to parent loggers. Defaults to False.
+            logger (logging.Logger): The logger instance to use for access
+                logs. Optional, defaults to None.
         """
         super().__init__()
 
-        self._logger = logging.getLogger(name)
-        self._logger.propagate = propagate
-        self._logger.addHandler(logging.StreamHandler())
+        if logger is None:
+            self._logger = logging.getLogger(name)
+            self._logger.propagate = propagate
+            self._logger.addHandler(logging.StreamHandler())
+        else:
+            self._logger = logger
 
         self._level = level
         self._format = format

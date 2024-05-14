@@ -2,6 +2,7 @@
 
 import logging
 from concurrent import futures
+from unittest import mock
 
 import grpc
 import pytest
@@ -155,3 +156,12 @@ def test_intercept_no_handlers(
     client_stub.UnaryUnary(test_service_pb2.Request(data="data"))
 
     assert not caplog.text
+
+
+def test_custom_logger(caplog: LogCaptureFixture) -> None:
+    """Test setting custom logger."""
+    logger = mock.Mock()
+
+    interceptor = AccessLogInterceptor(logger=logger)
+
+    assert interceptor._logger == logger
