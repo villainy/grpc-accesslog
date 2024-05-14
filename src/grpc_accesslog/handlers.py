@@ -1,4 +1,5 @@
 """gRPC access log handlers."""
+
 from datetime import timedelta
 from typing import Callable
 

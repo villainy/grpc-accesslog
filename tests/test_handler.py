@@ -1,4 +1,5 @@
 """Test RPC logging handlers."""
+
 from datetime import datetime
 from datetime import timezone
 from unittest.mock import Mock
