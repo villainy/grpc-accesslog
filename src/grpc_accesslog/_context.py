@@ -1,4 +1,5 @@
 """gRPC logging context."""
+
 from datetime import datetime
 from typing import Any
 from typing import NamedTuple

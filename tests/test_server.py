@@ -1,4 +1,5 @@
 """Server interceptor tests."""
+
 import logging
 from concurrent import futures
 
