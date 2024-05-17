@@ -18,9 +18,7 @@ def servicer_context() -> Mock:
         grpc.ServicerContext,
         name="ServicerContext",
         peer=Mock(return_value="ipv4:192.168.0.1:58111"),
-        _state=Mock(
-            code=grpc.StatusCode.NOT_FOUND,
-        ),
+        code=Mock(return_value=grpc.StatusCode.NOT_FOUND),
     )
 
     return context
