@@ -46,8 +46,7 @@ Features
 Requirements
 ------------
 
-* Python 3.8+
-* grpc-interceptors 0.13+
+* Python 3.9+
 
 
 Installation

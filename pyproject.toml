@@ -16,7 +16,7 @@ classifiers = [
 Changelog = "https://github.com/villainy/grpc-accesslog/releases"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 grpcio = "^1.56.2"
 
 [tool.poetry.group.dev.dependencies]
@@ -25,7 +25,7 @@ bandit = ">=1.7.7"
 black = ">=24.1.0"
 coverage = {extras = ["toml"], version = ">=6.2"}
 darglint = ">=1.8.1"
-flake8 = ">=4.0.1"
+flake8 = ">=6.1.0"
 flake8-bugbear = ">=21.9.2"
 flake8-docstrings = ">=1.6.0"
 flake8-rst-docstrings = ">=0.2.5"
