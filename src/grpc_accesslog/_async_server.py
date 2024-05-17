@@ -7,6 +7,7 @@ from typing import Awaitable
 from typing import Callable
 
 import grpc
+import grpc.aio
 
 from ._server import AccessLogger
 from ._server import _wrap_rpc_behavior

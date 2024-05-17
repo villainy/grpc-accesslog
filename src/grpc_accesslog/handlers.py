@@ -83,11 +83,8 @@ def status(context: LogContext) -> str:
         str: gRPC status code name
     """
     code = grpc.StatusCode.OK.name
-    # TODO gRPC status code is not exposed publicly anywhere in the server
-    # interceptor's context
-    if getattr(context.server_context, "_state", None):
-        if context.server_context._state.code:  # type: ignore
-            code = context.server_context._state.code.name  # type: ignore
+    if context.server_context.code():
+        code = context.server_context.code().name
 
     return str(code)
 
