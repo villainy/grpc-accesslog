@@ -652,20 +652,20 @@ develop = ["build", "twine"]
 
 [[package]]
 name = "furo"
-version = "2023.7.26"
+version = "2024.5.6"
 description = "A clean customisable Sphinx documentation theme."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "furo-2023.7.26-py3-none-any.whl", hash = "sha256:1c7936929ec57c5ddecc7c85f07fa8b2ce536b5c89137764cca508be90e11efd"},
-    {file = "furo-2023.7.26.tar.gz", hash = "sha256:257f63bab97aa85213a1fa24303837a3c3f30be92901ec732fea74290800f59e"},
+    {file = "furo-2024.5.6-py3-none-any.whl", hash = "sha256:490a00d08c0a37ecc90de03ae9227e8eb5d6f7f750edf9807f398a2bdf2358de"},
+    {file = "furo-2024.5.6.tar.gz", hash = "sha256:81f205a6605ebccbb883350432b4831c0196dd3d1bc92f61e1f459045b3d2b0b"},
 ]
 
 [package.dependencies]
 beautifulsoup4 = "*"
 pygments = ">=2.7"
 sphinx = ">=6.0,<8.0"
-sphinx-basic-ng = "*"
+sphinx-basic-ng = ">=1.0.0.beta2"
 
 [[package]]
 name = "grpc-stubs"
