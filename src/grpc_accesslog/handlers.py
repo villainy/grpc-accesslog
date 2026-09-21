@@ -8,7 +8,6 @@ import grpc
 
 from ._context import LogContext
 
-
 THandler = Callable[[LogContext], str]
 
 
