@@ -12,7 +12,7 @@ from typing import Union
 
 import grpc
 
-from ._context import LogContext, ServicerContext
+from ._context import LogContext, _ServicerContext
 from .handlers import DEFAULT_HANDLERS
 from .handlers import THandler
 
@@ -153,7 +153,7 @@ class AccessLogInterceptor(grpc.ServerInterceptor, AccessLogger):
             def logging_interceptor(
                 request_or_iterator: Any, context: grpc.ServicerContext
             ) -> Any:
-                l_context = ServicerContext(context)
+                l_context = _ServicerContext(context)
                 start = datetime.now(timezone.utc)
                 response = None
                 try:
@@ -173,7 +173,7 @@ class AccessLogInterceptor(grpc.ServerInterceptor, AccessLogger):
             def logging_interceptor_stream(
                 request_or_iterator: Any, context: grpc.ServicerContext
             ) -> Any:
-                l_context = ServicerContext(context)
+                l_context = _ServicerContext(context)
                 start = datetime.now(timezone.utc)
                 try:
                     yield from behavior(request_or_iterator, context)
