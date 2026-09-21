@@ -9,6 +9,7 @@ from typing import Callable
 import grpc
 import grpc.aio
 
+from ._context import _ServicerContext
 from ._server import AccessLogger
 from ._server import _wrap_rpc_behavior
 
@@ -33,6 +34,7 @@ class AsyncAccessLogInterceptor(grpc.aio.ServerInterceptor, AccessLogger):
             async def logging_interceptor(
                 request_or_iterator: Any, context: grpc.ServicerContext
             ) -> Any:
+                l_context = _ServicerContext(context)
                 start = datetime.now(timezone.utc)
                 response = None
                 try:
@@ -41,7 +43,7 @@ class AsyncAccessLogInterceptor(grpc.aio.ServerInterceptor, AccessLogger):
                 finally:
                     end = datetime.now(timezone.utc)
                     self.log(
-                        context,
+                        l_context,
                         handler_call_details.method,
                         request_or_iterator,
                         response,
@@ -52,6 +54,7 @@ class AsyncAccessLogInterceptor(grpc.aio.ServerInterceptor, AccessLogger):
             async def logging_interceptor_stream(
                 request_or_iterator: Any, context: grpc.ServicerContext
             ) -> Any:
+                l_context = _ServicerContext(context)
                 start = datetime.now(timezone.utc)
                 try:
                     async for response in behavior(request_or_iterator, context):
@@ -59,7 +62,7 @@ class AsyncAccessLogInterceptor(grpc.aio.ServerInterceptor, AccessLogger):
                 finally:
                     end = datetime.now(timezone.utc)
                     self.log(
-                        context,
+                        l_context,
                         handler_call_details.method,
                         request_or_iterator,
                         None,
