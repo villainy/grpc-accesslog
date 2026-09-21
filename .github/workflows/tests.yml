@@ -96,8 +96,6 @@ jobs:
       - name: Run Nox
         run: |
           nox --force-color --python=${{ matrix.python }}
-          pwd
-          ls -1a
 
       - name: Upload coverage data
         if: always() && matrix.session == 'tests'
@@ -105,6 +103,7 @@ jobs:
         with:
           name: coverage-data-${{ strategy.job-index }}
           path: ".coverage.*"
+          include-hidden-files: true
 
       - name: Upload documentation
         if: matrix.session == 'docs-build'
