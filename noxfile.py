@@ -9,7 +9,6 @@ from textwrap import dedent
 
 import nox
 
-
 try:
     from nox_poetry import Session
     from nox_poetry import session
@@ -24,16 +23,16 @@ except ImportError:
 
 
 package = "grpc_accesslog"
-python_versions = ["3.12", "3.11", "3.10", "3.9"]
+python_versions = ["3.13", "3.12", "3.11", "3.10"]
 nox.needs_version = ">= 2021.6.6"
-nox.options.sessions = (
+nox.options.sessions = [
     "pre-commit",
     "safety",
     "mypy",
     "tests",
     "xdoctest",
     "docs-build",
-)
+]
 
 
 def activate_virtualenv_in_precommit_hooks(session: Session) -> None:
@@ -117,7 +116,7 @@ def precommit(session: Session) -> None:
         "flake8-bugbear",
         "flake8-docstrings",
         "flake8-rst-docstrings",
-        "isort",
+        # "isort",
         "pep8-naming",
         "pre-commit",
         "pre-commit-hooks",

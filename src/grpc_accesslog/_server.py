@@ -16,7 +16,6 @@ from ._context import LogContext
 from .handlers import DEFAULT_HANDLERS
 from .handlers import THandler
 
-
 TRequest = TypeVar("TRequest")
 TResponse = TypeVar("TResponse")
 

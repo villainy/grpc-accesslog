@@ -2,7 +2,6 @@
 
 from datetime import datetime
 
-
 project = "gRPC Access Log"
 author = "Michael Morgan"
 copyright = f"{datetime.now().year}, {author}"

@@ -5,7 +5,6 @@ from ._async_server import AsyncAccessLogInterceptor
 from ._context import LogContext
 from ._server import AccessLogInterceptor
 
-
 __all__ = [
     "AccessLogInterceptor",
     "AsyncAccessLogInterceptor",
